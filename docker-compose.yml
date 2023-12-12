@@ -1,0 +1,52 @@
+version: '3'
+services:
+    databaseserver:
+        image: database-img
+        container_name: databaseserver
+        build:
+            context: ./Shortpaper_DB
+        volumes:
+            - type: bind
+              source: ./my.cnf
+              target: /etc/my.cnf
+        ports:
+            - 3306:3306
+        restart: always
+
+    apiserver:
+        image: api-img
+        container_name: apiserver
+        build:
+            context: ./Shortpaper_API
+        depends_on:
+            - databaseserver
+        links:
+            - databaseserver:databaseserver
+        ports:
+            - 3000:3000
+        restart: always
+
+    webserver:
+        image: web-img
+        container_name: webserver
+        build:
+            context: ./Shortpaper_Web
+        depends_on:
+            - databaseserver
+            - apiserver
+        ports:
+            - 8080:80
+        restart: always      
+
+    reverse-proxy:
+        image: nginx:1.17.10
+        container_name: reverseproxyserver
+        depends_on:
+            - databaseserver
+            - apiserver
+            - webserver
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+        ports:
+            - 80:80
+        restart: on-failure
