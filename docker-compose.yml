@@ -46,7 +46,10 @@ services:
             - apiserver
             - webserver
         volumes:
-            - ./nginx.conf:/etc/nginx/nginx.conf
+            - ./nginx.conf:/etc/nginx/nginx.conf  
+            - ../cert/cp23-un1.crt:/etc/ssl/certs/cp23-un1.crt
+            - ../certs/cp23-un1.key:/etc/ssl/private/cp23-un1.key
         ports:
+            - 443:443    
             - 80:80
         restart: on-failure
