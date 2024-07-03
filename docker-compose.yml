@@ -4,7 +4,7 @@ services:
         image: database-img
         container_name: databaseserver
         build:
-            context: ./Shortpaper_DB
+            context: ../ShortPaper_DB
         volumes:
             - type: bind
               source: ./my.cnf
@@ -17,28 +17,30 @@ services:
         image: api-img
         container_name: apiserver
         build:
-            context: ./Shortpaper_API
+            context: ../ShortPaper_API
         depends_on:
             - databaseserver
         links:
             - databaseserver:databaseserver
-        ports:
-            - 3000:3000
+        expose:
+            - 3000
+        volumes:
+            - /path/on/host:/app/uploads
         restart: always
 
     webserver:
         image: web-img
         container_name: webserver
         build:
-            context: ./Shortpaper_Web
+            context: ../ShortPaper_Web
         depends_on:
             - databaseserver
             - apiserver
-        ports:
-            - 8080:80
+        expose:
+            - 80
         restart: always      
 
-    reverse-proxy:
+    reverseproxy:
         image: nginx:1.17.10
         container_name: reverseproxyserver
         depends_on:
@@ -51,5 +53,5 @@ services:
             - ../certs/cp23-un1.key:/etc/ssl/private/cp23-un1.key
         ports:
             - 443:443    
-            - 80:80
+            - 9090:80
         restart: on-failure
